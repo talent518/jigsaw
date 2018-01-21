@@ -4,20 +4,5 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="linkmanTextColor">#d08922</color>
-    <color name="color_block_01">#FFFFFF</color>
-    <color name="color_block_02">#FFFFFF</color>
-    <color name="color_block_03">#FFFFFF</color>
-    <color name="color_block_04">#FFFFFF</color>
-    <color name="color_block_08">#FFFFFF</color>
-    <color name="color_block_07">#FFFFFF</color>
-    <color name="color_block_06">#FFFFFF</color>
-    <color name="color_block_05">#FFFFFF</color>
-    <color name="color_block_09">#FFFFFF</color>
-    <color name="color_block_10">#FFFFFF</color>
-    <color name="color_block_11">#FFFFFF</color>
-    <color name="color_block_12">#FFFFFF</color>
-    <color name="color_block_16">#FFFFFF</color>
-    <color name="color_block_15">#FFFFFF</color>
-    <color name="color_block_14">#FFFFFF</color>
-    <color name="color_block_13">#FFFFFF</color>
+    <color name="color_block">#FFFFFF</color>
 </resources>

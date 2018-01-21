@@ -1,8 +1,9 @@
 package net.yeah.talent518.jigsaw;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,8 +15,8 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.TextView;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
@@ -27,54 +28,71 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             {R.id.block_3x0, R.id.block_3x1, R.id.block_3x2, R.id.block_3x3}
     };
     Random rnd = new Random();
+    SharedPreferences pref;
     GestureDetector mGestureDetector;
     private TextView[][] mBlockViews = new TextView[4][4];
-    private int[][] mBgResourceIds = {
-            {R.drawable.bg_block_01, R.drawable.bg_block_02, R.drawable.bg_block_03, R.drawable.bg_block_04},
-            {R.drawable.bg_block_05, R.drawable.bg_block_06, R.drawable.bg_block_07, R.drawable.bg_block_08},
-            {R.drawable.bg_block_09, R.drawable.bg_block_10, R.drawable.bg_block_11, R.drawable.bg_block_12},
-            {R.drawable.bg_block_13, R.drawable.bg_block_14, R.drawable.bg_block_15, R.drawable.bg_block_16}
-    };
+    private Drawable[] mBgs = new Drawable[16];
     private int[][] mInts = {
             {1, 2, 3, 4},
             {5, 6, 7, 8},
             {9, 10, 11, 12},
             {13, 14, 15, 16}
     };
+    private int mMoves = 0;
+    private TextView tvMoves;
     private View view;
+    private TextView tvMin;
+    private int mMin = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        int y, x;
+        int y, x, i = 0;
         for (y = 0; y < 4; y++) {
             for (x = 0; x < 4; x++) {
                 mBlockViews[y][x] = (TextView) findViewById(blockResourceIds[y][x]);
+                mBgs[i++] = mBlockViews[y][x].getBackground();
             }
         }
-
-        initGame(false);
 
         mGestureDetector = new GestureDetector(this, this);
         mGestureDetector.setOnDoubleTapListener(this);
 
         view = findViewById(R.id.activity_main);
         view.setOnTouchListener(this);
+
+        pref = getSharedPreferences("score", MODE_MULTI_PROCESS);
+        mMin = pref.getInt("min", 1000);
+
+        tvMin = (TextView) findViewById(R.id.min);
+        tvMin.setText(Integer.toString(mMin));
+
+        tvMoves = (TextView) findViewById(R.id.moves);
+
+        initGame();
     }
 
-    private void initGame(boolean isInitVariable) {
-        int y, x, n = 1;
+    private void initGame() {
+        Random random = new Random();
+        int y, x, n;
 
-        if (isInitVariable) {
-            for (y = 0; y < 4; y++) {
-                for (x = 0; x < 4; x++) {
-                    mInts[y][x] = n++;
-                }
-            }
-            mInts[3][3] = 0;
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        for (n = 1; n <= 16; n++) {
+            list.add(n);
         }
+
+        random.setSeed(new Date().getTime());
+        for (y = 0; y < 4; y++) {
+            for (x = 0; x < 4; x++) {
+                mInts[y][x] = list.remove(random.nextInt(list.size()));
+                setBlock(x, y);
+            }
+        }
+
+        mMoves = 0;
+        tvMoves.setText("0");
     }
 
     private void playAnimation(int y, int x) {
@@ -120,22 +138,111 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         float posY = e2.getY() - e1.getY();
         float lenX = Math.abs(posX);
         float lenY = Math.abs(posY);
-        int x, y;
-        boolean flag;
-        boolean isMovable = true;
+        int x, y, n = 1, _x = 3, _y = 3;
+        boolean flag = true;
 
-        Log.i(TAG, "posX = " + posX + ", posY = " + posY);
-        if (posX > 0 && lenX > lenY) {
-            Log.e(TAG, "onFling-" + "向右滑动: " + mIntsToString());
+        for_y:
+        for (y = 0; y < 4; y++) {
+            for (x = 0; x < 4; x++) {
+                if (mInts[y][x] == 16) {
+                    Log.i(TAG, "posX = " + posX + ", posY = " + posY);
+                    if (posX > 0 && lenX > lenY) {
+                        if (x > 0) {
+                            Log.e(TAG, "onFling-向右滑动-before: " + mIntsToString());
 
-        } else if (posX < 0 && lenX > lenY) {
-            Log.e(TAG, "onFling-" + "向左滑动: " + mIntsToString());
-        } else if (posY > 0 && lenY > lenX) {
-            Log.e(TAG, "onFling-" + "向下滑动: " + mIntsToString());
-        } else if (posY < 0 && lenY > lenX) {
-            Log.e(TAG, "onFling-" + "向上滑动: " + mIntsToString());
-        } else {
-            isMovable = false;
+                            swapBlock(x, y, x - 1, y);
+
+                            Log.e(TAG, "onFling-向右滑动-after: " + mIntsToString());
+
+                            flag = false;
+                        }
+                    } else if (posX < 0 && lenX > lenY) {
+                        if (x < 3) {
+                            Log.e(TAG, "onFling-向左滑动-before: " + mIntsToString());
+
+                            swapBlock(x, y, x + 1, y);
+
+                            Log.e(TAG, "onFling-向左滑动-after: " + mIntsToString());
+
+                            flag = false;
+                        }
+                    } else if (posY > 0 && lenY > lenX) {
+                        if (y > 0) {
+                            Log.e(TAG, "onFling-向下滑动-before: " + mIntsToString());
+
+                            swapBlock(x, y - 1, x, y);
+
+                            Log.e(TAG, "onFling-向下滑动-after: " + mIntsToString());
+
+                            flag = false;
+                        }
+                    } else if (posY < 0 && lenY > lenX) {
+                        if (y < 3) {
+                            Log.e(TAG, "onFling-向上滑动-before: " + mIntsToString());
+
+                            swapBlock(x, y + 1, x, y);
+
+                            Log.e(TAG, "onFling-向上滑动-after: " + mIntsToString());
+
+                            flag = false;
+                        }
+                    }
+
+                    break for_y;
+                }
+            }
+        }
+
+        if(flag) { // 不可移动
+            return true;
+        }
+
+        mMoves++;
+        tvMoves.setText(Integer.toString(mMoves));
+        Log.e(TAG, "score = " + mMoves);
+
+        // 可移动
+        flag = true;
+        n = 1;
+        for (y = 0; y < 4; y++) {
+            for (x = 0; x < 4; x++) {
+                if ((n++) != mInts[y][x]) {
+                    flag = false;
+                }
+            }
+        }
+
+        if (flag) {
+            Log.v(TAG, "Game Over");
+            view.setOnTouchListener(null);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setTitle(R.string.game_over);
+            builder.setMessage(getString(R.string.your_moves) + mMoves + (mMin > mMoves ? "\n" + getString(R.string.break_a_record) + mMin : ""));
+            builder.setNegativeButton(R.string.new_game, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    view.setOnTouchListener(MainActivity.this);
+                    initGame();
+                }
+            });
+            builder.setPositiveButton(R.string.end_game, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+            builder.create().show();
+
+            if (mMoves < mMin) {
+                mMin = mMoves;
+                SharedPreferences.Editor edit = pref.edit();
+                edit.putInt("min", mMin);
+                edit.commit();
+
+                tvMin.setText(Integer.toString(mMin));
+            }
         }
 
         return true;
@@ -154,6 +261,21 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     @Override
     public boolean onDoubleTapEvent(MotionEvent e) {
         return false;
+    }
+
+    private void swapBlock(int x1, int y1, int x2, int y2) {
+        int i = mInts[y1][x1];
+        mInts[y1][x1] = mInts[y2][x2];
+        mInts[y2][x2] = i;
+
+        setBlock(x1, y1);
+        setBlock(x2, y2);
+    }
+
+    private void setBlock(int x, int y) {
+        mBlockViews[y][x].setText(mInts[y][x] == 16 ? "" : Integer.toString(mInts[y][x]));
+        mBlockViews[y][x].setBackground(mBgs[mInts[y][x] - 1]);
+        mBlockViews[y][x].setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(mInts[y][x] >= 10 ? R.dimen.text_size_2font : R.dimen.text_size_1font));
     }
 
     private String mIntsToString() {

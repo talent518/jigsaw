@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">拼图游戏</string>
     <string name="linkinfo">作者：阿宝\n邮件：talent518@yeah.net</string>
+    <string name="moves">移动次数</string>
+    <string name="min">最少次数</string>
+    <string name="game_over">游戏结束</string>
+    <string name="your_moves">你的得分：</string>
+    <string name="break_a_record">你打破纪录：</string>
+    <string name="new_game">新游戏</string>
+    <string name="end_game">退出游戏</string>
 </resources>

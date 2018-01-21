@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">jigsaw</string>
     <string name="linkinfo">Author: ABao\nE-Mail: talent518@yeah.net</string>
+    <string name="moves">Moves</string>
+    <string name="min">Minimum</string>
+    <string name="game_over">Game Over</string>
+    <string name="your_moves">Your moves: </string>
+    <string name="break_a_record">Break a record: </string>
+    <string name="new_game">New Game</string>
+    <string name="end_game">End Game</string>
 </resources>
