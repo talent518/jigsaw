@@ -15,7 +15,6 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
@@ -76,17 +75,59 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     private void initGame() {
         Random random = new Random();
-        int y, x, n;
-
-        ArrayList<Integer> list = new ArrayList<Integer>();
-        for (n = 1; n <= 16; n++) {
-            list.add(n);
-        }
+        int y, x, n = 1, tmp;
 
         random.setSeed(new Date().getTime());
         for (y = 0; y < 4; y++) {
             for (x = 0; x < 4; x++) {
-                mInts[y][x] = list.remove(random.nextInt(list.size()));
+                mInts[y][x] = (n++);
+            }
+        }
+        n = 0;
+        x = 3;
+        y = 3;
+        while (n < 1000) {
+            switch (random.nextInt(4)) {
+                case 0: // up
+                    if (y > 0) {
+                        n++;
+                        tmp = mInts[y][x];
+                        mInts[y][x] = mInts[y - 1][x];
+                        mInts[y - 1][x] = tmp;
+                        y--;
+                    }
+                    break;
+                case 1: // down
+                    if (y < 3) {
+                        n++;
+                        tmp = mInts[y][x];
+                        mInts[y][x] = mInts[y + 1][x];
+                        mInts[y + 1][x] = tmp;
+                        y++;
+                    }
+                    break;
+                case 2: // left
+                    if (x > 0) {
+                        n++;
+                        tmp = mInts[y][x];
+                        mInts[y][x] = mInts[y][x - 1];
+                        mInts[y][x - 1] = tmp;
+                        x--;
+                    }
+                    break;
+                default: // right
+                    if (x < 3) {
+                        n++;
+                        tmp = mInts[y][x];
+                        mInts[y][x] = mInts[y][x + 1];
+                        mInts[y][x + 1] = tmp;
+                        x++;
+                    }
+                    break;
+            }
+        }
+        for (y = 0; y < 4; y++) {
+            for (x = 0; x < 4; x++) {
                 setBlock(x, y);
             }
         }
@@ -193,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             }
         }
 
-        if(flag) { // 不可移动
+        if (flag) { // 不可移动
             return true;
         }
 
